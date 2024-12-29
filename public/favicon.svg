@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .eye { fill: #00ff9d; }
+    @media (prefers-color-scheme: dark) {
+      .eye { fill: #00ff9d; }
+    }
+  </style>
+  <g transform="translate(0 4)">
+    <!-- Eye shape -->
+    <path class="eye" d="M16 4C9.5 4 3.73 7.61 1 13a1 1 0 0 0 0 .99C3.73 19.39 9.5 23 16 23s12.27-3.61 15-8.01a1 1 0 0 0 0-.99C28.27 7.61 22.5 4 16 4zm0 16c-3.79 0-7.17-2.13-8.82-5.5C8.83 11.13 12.21 9 16 9s7.17 2.13 8.82 5.5C23.17 17.87 19.79 20 16 20z"/>
+    <!-- Pupil -->
+    <circle class="eye" cx="16" cy="14.5" r="4"/>
+    <!-- Shine -->
+    <circle fill="#ffffff" cx="14" cy="12.5" r="1.5"/>
+  </g>
+</svg> 

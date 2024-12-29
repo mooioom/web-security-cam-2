@@ -3,6 +3,7 @@ class SecurityCamera {
         this.video = document.getElementById('camera');
         this.startButton = document.getElementById('startButton');
         this.stopButton = document.getElementById('stopButton');
+        this.pauseButton = document.getElementById('pauseButton');
         this.statusElement = document.getElementById('status');
         this.motionStatus = document.getElementById('motionStatus');
         this.sensitivityInput = document.getElementById('sensitivity');
@@ -11,6 +12,7 @@ class SecurityCamera {
         this.customSoundInput = document.getElementById('customSound');
         this.testSoundButton = document.getElementById('testSound');
         
+        this.isPaused = false;
         this.stream = null;
         this.wakeLockManager = new WakeLockManager();
         this.motionDetector = new MotionDetector(this.video);
@@ -18,11 +20,18 @@ class SecurityCamera {
         this.customAudioURL = null;
         
         this.setupEventListeners();
+        
+        // Load saved settings
+        this.loadSettings();
+        
+        // Add settings save on changes
+        this.setupSettingsSave();
     }
 
     setupEventListeners() {
         this.startButton.addEventListener('click', () => this.startCamera());
         this.stopButton.addEventListener('click', () => this.stopCamera());
+        this.pauseButton.addEventListener('click', () => this.togglePause());
         
         this.sensitivityInput.addEventListener('input', () => {
             const value = this.sensitivityInput.value;
@@ -72,10 +81,13 @@ class SecurityCamera {
             
             this.startButton.disabled = true;
             this.stopButton.disabled = false;
+            this.pauseButton.disabled = false;
             this.statusElement.textContent = 'Camera active';
             
             await this.wakeLockManager.requestWakeLock();
-            this.startMotionDetection();
+            if (!this.isPaused) {
+                this.startMotionDetection();
+            }
             this.setAlarmSound(this.alarmSelect.value);
         } catch (err) {
             console.error('Camera access failed:', err);
@@ -93,9 +105,11 @@ class SecurityCamera {
             
             this.startButton.disabled = false;
             this.stopButton.disabled = true;
+            this.pauseButton.disabled = true;
             this.statusElement.textContent = 'Camera inactive';
             this.motionStatus.textContent = 'No motion detected';
             this.motionStatus.classList.remove('motion-detected');
+            this.motionStatus.classList.remove('paused');
         }
     }
 
@@ -122,8 +136,112 @@ class SecurityCamera {
     }
 
     playAlarm() {
+        if (this.isPaused) return;
+        
         this.audio.currentTime = 0;
         this.audio.play();
+    }
+
+    loadSettings() {
+        try {
+            // Load sensitivity
+            const savedSensitivity = localStorage.getItem('sensitivity');
+            if (savedSensitivity) {
+                this.sensitivityInput.value = savedSensitivity;
+                this.sensitivityValue.textContent = savedSensitivity;
+                this.motionDetector.sensitivity = parseInt(savedSensitivity);
+            }
+
+            // Load selected alarm sound
+            const savedAlarmSound = localStorage.getItem('alarmSound');
+            if (savedAlarmSound) {
+                this.alarmSelect.value = savedAlarmSound;
+                this.setAlarmSound(savedAlarmSound);
+            }
+
+            // Load detection zones
+            const savedZones = localStorage.getItem('detectionZones');
+            if (savedZones) {
+                this.motionDetector.motionZones.zones = JSON.parse(savedZones);
+                this.motionDetector.motionZones.drawZones();
+            }
+
+            // Load custom sound URL if exists
+            const customSoundURL = localStorage.getItem('customSoundURL');
+            if (customSoundURL) {
+                this.customAudioURL = customSoundURL;
+            }
+
+            // Load pause state
+            const savedPauseState = localStorage.getItem('isPaused');
+            if (savedPauseState) {
+                this.isPaused = savedPauseState === 'true';
+                if (this.isPaused) {
+                    this.pauseButton.innerHTML = '<i class="fas fa-play"></i> Resume Detection';
+                    this.motionStatus.textContent = 'Detection paused';
+                    this.motionStatus.classList.add('paused');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading settings:', error);
+        }
+    }
+
+    setupSettingsSave() {
+        // Save sensitivity changes
+        this.sensitivityInput.addEventListener('change', () => {
+            const value = this.sensitivityInput.value;
+            localStorage.setItem('sensitivity', value);
+        });
+
+        // Save alarm sound selection
+        this.alarmSelect.addEventListener('change', () => {
+            if (this.alarmSelect.value !== 'custom') {
+                localStorage.setItem('alarmSound', this.alarmSelect.value);
+            }
+        });
+
+        // Save custom sound URL
+        this.customSoundInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (this.customAudioURL) {
+                    URL.revokeObjectURL(this.customAudioURL);
+                }
+                this.customAudioURL = URL.createObjectURL(file);
+                localStorage.setItem('customSoundURL', this.customAudioURL);
+                localStorage.setItem('alarmSound', 'custom');
+            }
+        });
+    }
+
+    // Add method to save zones
+    saveZones() {
+        if (this.motionDetector && this.motionDetector.motionZones) {
+            const zones = this.motionDetector.motionZones.zones;
+            localStorage.setItem('detectionZones', JSON.stringify(zones));
+        }
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        
+        if (this.isPaused) {
+            this.pauseButton.innerHTML = '<i class="fas fa-play"></i> Resume Detection';
+            this.motionStatus.textContent = 'Detection paused';
+            this.motionStatus.classList.add('paused');
+            this.motionDetector.stopDetection();
+            this.audio.pause();
+            this.audio.currentTime = 0;
+        } else {
+            this.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause Detection';
+            this.motionStatus.textContent = 'No motion detected';
+            this.motionStatus.classList.remove('paused');
+            this.startMotionDetection();
+        }
+        
+        // Save pause state
+        localStorage.setItem('isPaused', this.isPaused.toString());
     }
 }
 

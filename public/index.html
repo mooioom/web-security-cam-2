@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Security Cam</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
@@ -12,7 +14,7 @@
     <div class="container">
         <header>
             <h1>Web Security Cam</h1>
-            <p class="tagline">turn your browser into a motion detection camera 👁️</p>
+            <p class="tagline">Motion detection kit for the browser 👁️</p>
         </header>
 
         <div class="camera-container">
@@ -38,6 +40,7 @@
             <div class="main-controls">
                 <button id="startButton" class="btn primary"><i class="fas fa-video"></i> Start Camera</button>
                 <button id="stopButton" class="btn danger" disabled><i class="fas fa-stop"></i> Stop Camera</button>
+                <button id="pauseButton" class="btn secondary" disabled><i class="fas fa-pause"></i> Pause Detection</button>
             </div>
 
             <div class="settings">
@@ -60,18 +63,26 @@
                             <option value="alarm1.mp3">Alarm 1</option>
                             <option value="alarm2.mp3">Alarm 2</option>
                             <option value="alarm3.mp3">Alarm 3</option>
-                            <option value="baby1.mp3">Baby Sound 1</option>
-                            <option value="baby2.mp3">Baby Sound 2</option>
-                            <option value="bark1.mp3">Dog Bark 1</option>
-                            <option value="bark2.mp3">Dog Bark 2</option>
-                            <option value="bark3.mp3">Dog Bark 3</option>
+                            <option value="alert4.mp3">Alert 4</option>
+                            <option value="baby1.mp3">Baby 1</option>
+                            <option value="baby2.mp3">Baby 2</option>
+                            <option value="bark1.mp3">Bark 1</option>
+                            <option value="bark2.mp3">Bark 2</option>
+                            <option value="bark3.mp3">Bark 3</option>
                             <option value="dishes.mp3">Dishes</option>
+                            <option value="drums-1.mp3">Drums 1</option>
+                            <option value="gun-shots-2.mp3">Gun Shots 2</option>
+                            <option value="gun1.mp3">Gun 1</option>
+                            <option value="gun2.mp3">Gun 2</option>
+                            <option value="gun3.mp3">Gun 3</option>
                             <option value="lead1.mp3">Lead 1</option>
                             <option value="lead2.mp3">Lead 2</option>
                             <option value="people.mp3">People</option>
+                            <option value="pub.mp3">Pub</option>
                             <option value="siren1.mp3">Siren 1</option>
                             <option value="siren2.mp3">Siren 2</option>
                             <option value="siren3.mp3">Siren 3</option>
+                            <option value="siren4.mp3">Siren 4</option>
                             <option value="custom">Custom Sound</option>
                         </select>
                         <input type="file" id="customSound" accept="audio/*" style="display: none;">

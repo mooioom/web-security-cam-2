@@ -56,6 +56,7 @@ class MotionDetector {
     compareFrames(current, previous) {
         let totalDiff = 0;
         let pixelsChecked = 0;
+        let activeZones = new Set();
 
         // Get dimensions
         const width = current.width;
@@ -64,8 +65,10 @@ class MotionDetector {
         // Check each pixel
         for (let y = 0; y < height; y += 2) {
             for (let x = 0; x < width; x += 2) {
-                // Only check pixels in detection zones
-                if (this.motionZones.isInDetectionZone(x, y)) {
+                // Get zone index (-1 means no zones, so check everywhere)
+                const zoneIndex = this.motionZones.getZoneIndex(x, y);
+                // Process pixel if in a zone or if no zones exist
+                if (zoneIndex !== -1 || this.motionZones.zones.length === 0) {
                     const i = (y * width + x) * 4;
                     
                     // Compare RGB values (skip alpha)
@@ -79,16 +82,29 @@ class MotionDetector {
                     // Only count significant changes
                     if (pixelDiff > this.pixelThreshold) {
                         totalDiff++;
+                        // Only track zone if it exists
+                        if (zoneIndex !== -1) {
+                            activeZones.add(zoneIndex);
+                        }
                     }
                     pixelsChecked++;
                 }
             }
         }
 
-        // If no pixels were checked (no zones), return 0
+        // If no pixels were checked, return 0
         if (pixelsChecked === 0) return 0;
 
-        // Return percentage of pixels that changed significantly
-        return (totalDiff / pixelsChecked) * 400;
+        // Calculate motion percentage
+        const motionPercentage = (totalDiff / pixelsChecked) * 400;
+
+        // Only increment zone counters if motion threshold is exceeded
+        if (motionPercentage > (50 - this.sensitivity) && this.motionZones.zones.length > 0) {
+            activeZones.forEach(zoneIndex => {
+                this.motionZones.incrementZoneCounter(zoneIndex);
+            });
+        }
+
+        return motionPercentage;
     }
 } 

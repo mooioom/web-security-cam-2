@@ -17,7 +17,6 @@ class SecurityCamera {
         this.wakeLockManager = new WakeLockManager();
         this.motionDetector = new MotionDetector(this.video);
         this.audio = new Audio();
-        this.customAudioURL = null;
         
         this.setupEventListeners();
         
@@ -44,17 +43,17 @@ class SecurityCamera {
                 this.customSoundInput.click();
             } else {
                 this.setAlarmSound(this.alarmSelect.value);
+                localStorage.setItem('alarmSound', this.alarmSelect.value);
             }
         });
         
         this.customSoundInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                if (this.customAudioURL) {
-                    URL.revokeObjectURL(this.customAudioURL);
-                }
-                this.customAudioURL = URL.createObjectURL(file);
-                this.setAlarmSound(this.customAudioURL);
+                const tempURL = URL.createObjectURL(file);
+                this.audio.src = tempURL;
+                // Cleanup the URL after the audio loads
+                this.audio.onload = () => URL.revokeObjectURL(tempURL);
             }
         });
         
@@ -128,9 +127,7 @@ class SecurityCamera {
     }
 
     setAlarmSound(soundPath) {
-        if (soundPath.startsWith('blob:')) {
-            this.audio.src = soundPath;
-        } else {
+        if (soundPath !== 'custom') {
             this.audio.src = `audio/${soundPath}`;
         }
     }
@@ -152,11 +149,15 @@ class SecurityCamera {
                 this.motionDetector.sensitivity = parseInt(savedSensitivity);
             }
 
-            // Load selected alarm sound
+            // Load selected alarm sound (only system sounds)
             const savedAlarmSound = localStorage.getItem('alarmSound');
-            if (savedAlarmSound) {
+            if (savedAlarmSound && savedAlarmSound !== 'custom') {
                 this.alarmSelect.value = savedAlarmSound;
                 this.setAlarmSound(savedAlarmSound);
+            } else {
+                // Default to first sound
+                this.alarmSelect.value = 'alarm1.mp3';
+                this.setAlarmSound('alarm1.mp3');
             }
 
             // Load detection zones
@@ -164,12 +165,6 @@ class SecurityCamera {
             if (savedZones) {
                 this.motionDetector.motionZones.zones = JSON.parse(savedZones);
                 this.motionDetector.motionZones.drawZones();
-            }
-
-            // Load custom sound URL if exists
-            const customSoundURL = localStorage.getItem('customSoundURL');
-            if (customSoundURL) {
-                this.customAudioURL = customSoundURL;
             }
 
             // Load pause state
@@ -194,23 +189,18 @@ class SecurityCamera {
             localStorage.setItem('sensitivity', value);
         });
 
-        // Save alarm sound selection
+        // Simplified alarm sound saving
         this.alarmSelect.addEventListener('change', () => {
             if (this.alarmSelect.value !== 'custom') {
                 localStorage.setItem('alarmSound', this.alarmSelect.value);
             }
         });
 
-        // Save custom sound URL
+        // Remove custom sound saving
         this.customSoundInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                if (this.customAudioURL) {
-                    URL.revokeObjectURL(this.customAudioURL);
-                }
-                this.customAudioURL = URL.createObjectURL(file);
-                localStorage.setItem('customSoundURL', this.customAudioURL);
-                localStorage.setItem('alarmSound', 'custom');
+                // No longer saving custom sounds
             }
         });
     }

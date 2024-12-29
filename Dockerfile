@@ -17,5 +17,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Command to run the application
-CMD ["python", "app.py"] 
+# Command to run the application - modified to listen on all interfaces
+CMD ["python", "-c", "from app import app; app.run(host='0.0.0.0', port=5000)"] 

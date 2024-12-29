@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Cam</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Web Security Cam</h1>
+            <p class="tagline">turn your browser into a motion detection camera 👁️</p>
+        </header>
+
+        <div class="camera-container">
+            <div class="camera-frame">
+                <video id="camera" autoplay playsinline></video>
+                <canvas id="motionCanvas" style="display: none;"></canvas>
+                <canvas id="zonesCanvas" class="zones-overlay"></canvas>
+                <div class="camera-overlay">
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="zones-controls">
+                    <button id="addZoneBtn" class="btn secondary">
+                        <i class="fas fa-plus"></i> Add Detection Zone
+                    </button>
+                    <button id="resetZonesBtn" class="btn danger">
+                        <i class="fas fa-trash"></i> Reset Zones
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="main-controls">
+                <button id="startButton" class="btn primary"><i class="fas fa-video"></i> Start Camera</button>
+                <button id="stopButton" class="btn danger" disabled><i class="fas fa-stop"></i> Stop Camera</button>
+            </div>
+
+            <div class="settings">
+                <div class="settings-group sensitivity-control">
+                    <label for="sensitivity">
+                        <i class="fas fa-eye"></i> Motion Sensitivity
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="sensitivity" min="5" max="50" value="25" step="1">
+                        <span id="sensitivityValue">25</span>
+                    </div>
+                </div>
+
+                <div class="settings-group audio-control">
+                    <label for="alarmSound">
+                        <i class="fas fa-bell"></i> Alarm Sound
+                    </label>
+                    <div class="sound-controls">
+                        <select id="alarmSound">
+                            <option value="alarm1.mp3">Alarm 1</option>
+                            <option value="alarm2.mp3">Alarm 2</option>
+                            <option value="alarm3.mp3">Alarm 3</option>
+                            <option value="baby1.mp3">Baby Sound 1</option>
+                            <option value="baby2.mp3">Baby Sound 2</option>
+                            <option value="bark1.mp3">Dog Bark 1</option>
+                            <option value="bark2.mp3">Dog Bark 2</option>
+                            <option value="bark3.mp3">Dog Bark 3</option>
+                            <option value="dishes.mp3">Dishes</option>
+                            <option value="lead1.mp3">Lead 1</option>
+                            <option value="lead2.mp3">Lead 2</option>
+                            <option value="people.mp3">People</option>
+                            <option value="siren1.mp3">Siren 1</option>
+                            <option value="siren2.mp3">Siren 2</option>
+                            <option value="siren3.mp3">Siren 3</option>
+                            <option value="custom">Custom Sound</option>
+                        </select>
+                        <input type="file" id="customSound" accept="audio/*" style="display: none;">
+                        <button id="testSound" class="btn secondary"><i class="fas fa-play"></i> Test</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <div id="status" class="status">
+                <i class="fas fa-circle"></i> Camera inactive
+            </div>
+            <div id="motionStatus" class="motion-status">
+                <i class="fas fa-running"></i> No motion detected
+            </div>
+        </div>
+
+        <footer>
+            <div class="lock-icons">
+                <i class="fas fa-lock"></i>
+                <i class="fas fa-shield-alt"></i>
+                <i class="fas fa-lock"></i>
+            </div>
+            <p class="creator">Created by Eldad Levi</p>
+        </footer>
+    </div>
+    <script src="wakeLock.js"></script>
+    <script src="motionZones.js"></script>
+    <script src="motionDetection.js"></script>
+    <script src="app.js"></script>
+</body>
+</html> 
